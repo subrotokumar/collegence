@@ -2,12 +2,16 @@
 pragma solidity ^0.8.9;
 
 interface IdaoContract {
-    function balanceOf(address, uint256) external view returns (uint256);
+    function balanceOf(address owner) external view returns (uint256 balance);
+
+    function ownerOf(uint256 tokenId) external view returns (address owner);
 }
 
 contract DAO {
-    address public i_owner;
-    uint256 nextProposal;
+    address private i_owner;
+    uint256 private nextProposal;
+    uint private ongoingProposal;
+    uint private proposalPassed;
     uint256[] public validTokens;
     IdaoContract daoContract;
 
@@ -26,6 +30,7 @@ contract DAO {
     }
 
     mapping(uint256 => Proposal) public Proposals;
+    mapping(address => bool) public isValid;
 
     event proposalCreated(
         uint256 id,
@@ -47,19 +52,16 @@ contract DAO {
     constructor() {
         i_owner = msg.sender;
         nextProposal = 1;
+        ongoingProposal = 0;
+        proposalPassed = 0;
         daoContract = IdaoContract(0xFCB93B0dDBC3b3E6E62Bf7dc7A565c688F18150c);
-        validTokens = [0];
+        addTokenId(0);
     }
 
     function checkProposalEligibility(
         address _proposalist
     ) private view returns (bool) {
-        for (uint256 i = 0; i < validTokens.length; i++) {
-            if (daoContract.balanceOf(_proposalist, validTokens[i]) >= 1) {
-                return true;
-            }
-        }
-        return false;
+        return isValid[_proposalist];
     }
 
     function checkVoteEligibility(
@@ -98,6 +100,7 @@ contract DAO {
             msg.sender
         );
         nextProposal++;
+        ongoingProposal++;
     }
 
     function voteOnProposal(uint256 _id, bool _vote) public {
@@ -133,15 +136,18 @@ contract DAO {
             block.number > Proposals[_id].deadline,
             "Voting has not concluded"
         );
-        require(!Proposals[_id].countConducted, "Count allready conducted");
+        require(!Proposals[_id].countConducted, "Count already conducted");
 
         Proposal storage p = Proposals[_id];
 
         if (Proposals[_id].votesDown < Proposals[_id].votesUp) {
             p.passed = true;
+            proposalPassed++;
         }
 
         p.countConducted = true;
+        ongoingProposal--;
+
         emit proposalCount(_id, p.passed);
     }
 
@@ -149,5 +155,31 @@ contract DAO {
         require(msg.sender == i_owner, "Only Owner Can Add Token");
 
         validTokens.push(_tokenId);
+        isValid[daoContract.ownerOf(_tokenId)] = true;
+    }
+
+    function changeOwner(address _newOwner) public {
+        require(msg.sender == i_owner, "Only owner can change owner");
+        i_owner = _newOwner;
+    }
+
+    function owner(uint256) public view returns (address) {
+        return i_owner;
+    }
+
+    function getProposalCount() public view returns (uint) {
+        return nextProposal - 1;
+    }
+
+    function getMemberCount() public view returns (uint) {
+        return validTokens.length;
+    }
+
+    function getOngoingProposalCount() public view returns (uint) {
+        return ongoingProposal;
+    }
+
+    function getProposalPassedCount() public view returns (uint) {
+        return proposalPassed;
     }
 }

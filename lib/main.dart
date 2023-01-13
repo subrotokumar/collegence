@@ -1,3 +1,4 @@
+import 'package:collegence/pages/home.dart';
 import 'package:collegence/pages/splashscreen.dart';
 import 'package:flutter/material.dart';
 
@@ -14,7 +15,7 @@ class MyApp extends StatelessWidget {
       debugShowCheckedModeBanner: false,
       title: 'DAO',
       theme: ThemeData.light(),
-      home: const SplashScreen(),
+      home: const HomeScreen(),
     );
   }
 }

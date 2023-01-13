@@ -13,4 +13,4 @@ yarn hardhat run scripts/deploy.js
 ```
 Collegence.sol deployed to [0xFCB93B0dDBC3b3E6E62Bf7dc7A565c688F18150c](https://mumbai.polygonscan.com/address/0xFCB93B0dDBC3b3E6E62Bf7dc7A565c688F18150c#code)
 
-DAO.sol deployed to [0xa8aeA92A4e4fB78000DDD140b5410dC86AD6b4D2](https://mumbai.polygonscan.com/address/0xa8aeA92A4e4fB78000DDD140b5410dC86AD6b4D2#code)
+DAO.sol deployed to [0x4503eE26b9c5BF6Ac6B956B9f19DF4A41409E311](https://mumbai.polygonscan.com/address/0x4503eE26b9c5BF6Ac6B956B9f19DF4A41409E311#code)
